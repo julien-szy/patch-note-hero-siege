@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hero Siege - Season 7 Patch Notes</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1b1b1b;
+      color: #e0e0e0;
+      padding: 2rem;
+    }
+    .section {
+      margin-bottom: 2rem;
+    }
+    .section h2 {
+      cursor: pointer;
+      padding: 0.5rem;
+      background: #2c2c2c;
+      margin: 0;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+    }
+    .section h2 .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.2s ease;
+    }
+    .entries {
+      padding: 1rem;
+      background-color: #252525;
+      display: none;
+    }
+    .entry::before {
+      content: '⚡';
+      margin-right: 0.5rem;
+    }
+    .entry.up::before {
+      content: '🟢 ↑';
+    }
+    .entry.down::before {
+      content: '🔴 ↓';
+    }
+  </style>
+</head>
+<body>
+  <h1>Hero Siege - Season 7 Patch Notes</h1>
+  <div id="patch-notes"></div>
+
+  <script>
+    fetch('patch-notes.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('patch-notes');
+
+        data.forEach(section => {
+          const sectionDiv = document.createElement('div');
+          sectionDiv.className = 'section';
+
+          const header = document.createElement('h2');
+          const arrow = document.createElement('span');
+          arrow.className = 'arrow';
+          arrow.textContent = '▶';
+          header.appendChild(arrow);
+          header.appendChild(document.createTextNode(section.title));
+
+          const content = document.createElement('div');
+          content.className = 'entries';
+
+          section.entries.forEach(text => {
+            const entry = document.createElement('div');
+            entry.className = 'entry';
+            if (/\bbuff(ed)?|increase(d)?|added/i.test(text)) entry.classList.add('up');
+            else if (/\bnerf(ed)?|reduce(d)?|lower(ed)?/i.test(text)) entry.classList.add('down');
+            content.appendChild(entry);
+            entry.textContent = text;
+          });
+
+          header.onclick = () => {
+            const isHidden = content.style.display === 'none' || content.style.display === '';
+            content.style.display = isHidden ? 'block' : 'none';
+            arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+          };
+
+          sectionDiv.appendChild(header);
+          sectionDiv.appendChild(content);
+          container.appendChild(sectionDiv);
+        });
+      })
+      .catch(err => {
+        document.getElementById('patch-notes').innerText = 'Failed to load patch notes: ' + err;
+      });
+  </script>
+</body>
+</html>
