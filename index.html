@@ -10,6 +10,24 @@
       color: #e0e0e0;
       padding: 2rem;
     }
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+    .toc a {
+      text-decoration: none;
+      background: #333;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .toc a:hover {
+      background: #555;
+    }
     .section {
       margin-bottom: 2rem;
     }
@@ -31,31 +49,116 @@
       background-color: #252525;
       display: none;
     }
-    .entry::before {
-      content: '⚡';
-      margin-right: 0.5rem;
+    .entry {
+      padding-left: 1.5rem;
+      position: relative;
+      margin-bottom: 0.25rem;
     }
     .entry.up::before {
-      content: '🟢 ↑';
+      content: '↑';
+      color: #00ff00;
     }
     .entry.down::before {
-      content: '🔴 ↓';
+      content: '↓';
+      color: #ff4444;
+    }
+    .entry.added::before {
+      content: '+';
+      color: #4da6ff;
+    }
+    .entry::before {
+      content: '⚡';
+      color: orange;
+    }
+    .entry.up::before,
+    .entry.down::before,
+    .entry.added::before,
+    .entry::before {
+      position: absolute;
+      left: 0;
+      width: 1.5rem;
+      text-align: center;
+    }
+    #back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #444;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1000;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: background 0.3s;
+    }
+    #back-to-top:hover {
+      background: #666;
+    }
+    #countdown {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
   <h1>Hero Siege - Season 7 Patch Notes</h1>
+  <div id="countdown">Loading countdown...</div>
+  <div class="toc" id="toc"></div>
   <div id="patch-notes"></div>
+  <div id="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</div>
 
   <script>
+    const targetDate = new Date(Date.UTC(2025, 5, 6, 12, 0, 0));
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+      const countdownEl = document.getElementById('countdown');
+
+      if (diff <= 0) {
+        countdownEl.textContent = "Season 7 is live!";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.textContent = `Season 7 starts in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
     fetch('patch-notes.json')
       .then(response => response.json())
       .then(data => {
         const container = document.getElementById('patch-notes');
+        const toc = document.getElementById('toc');
 
-        data.forEach(section => {
+        data.forEach((section, index) => {
+          const sectionId = `section-${index}`;
+
           const sectionDiv = document.createElement('div');
           sectionDiv.className = 'section';
+          sectionDiv.id = sectionId;
+
+          const link = document.createElement('a');
+          link.href = `#${sectionId}`;
+          link.textContent = section.title;
+          toc.appendChild(link);
 
           const header = document.createElement('h2');
           const arrow = document.createElement('span');
@@ -70,10 +173,23 @@
           section.entries.forEach(text => {
             const entry = document.createElement('div');
             entry.className = 'entry';
-            if (/\bbuff(ed)?|increase(d)?|added/i.test(text)) entry.classList.add('up');
-            else if (/\bnerf(ed)?|reduce(d)?|lower(ed)?/i.test(text)) entry.classList.add('down');
-            content.appendChild(entry);
+
+            const loweredButGood = /lower(ed)? cooldown|lower(ed)? cast time/i;
+            const betterBreak = /elemental break.*instead of.*fire break/i;
+            const isBuff = /\bbuff(ed)?|increase(d)?|can now|improved|upgrade(d)?|more effective|new effect/i.test(text)
+              || loweredButGood.test(text)
+              || betterBreak.test(text);
+            const isNerf = /^(.*:)?\s*nerf(ed)?\b|reduce(d)?(?!.*elemental)|decrease(d)?(?!.*elemental)/i.test(text)
+              && !loweredButGood.test(text)
+              && !betterBreak.test(text);
+            const isAdd = /\badd(ed)?|adds?|new(?! scaling| value)/i.test(text);
+
+            if (isAdd) entry.classList.add('added');
+            else if (isBuff) entry.classList.add('up');
+            else if (isNerf) entry.classList.add('down');
+
             entry.textContent = text;
+            content.appendChild(entry);
           });
 
           header.onclick = () => {
