@@ -691,18 +691,17 @@
       "Blade Barrier - Spinning Armory: Added a -10% damage per point scaling to the node.",
       "Blade Barrier - Infinite Potential: Changed max points from 5 to 4.",
       "Blade Barrier - Damascus Steel Blades: Nerfed attack damage from 15% to 12.5% per point.",
-      "Blade Barrier - Nerfed attack damage scaling from 12% to 11% per point and nerfed the phys synergy scaling."
-    ]
-  },
-  {
-    "title": "Omnislash: Nerfed attack damage scaling from 25% to 22% per point.",
-    "entries": [
+      "Blade Barrier - Nerfed attack damage scaling from 12% to 11% per point and nerfed the phys synergy scaling.",
       "Omnislash - Extra Cut: Changed swings from 2 per point to 2 + (1 per point).",
       "Omnislash - No Hesitation: Nerfed cooldown reduction from 8% to 7% per point.",
       "Omnislash - Looming Cover: Nerfed duration from 20% to 15% per point.",
       "Omnislash - Nail In The Coffin: Nerfed damage from 15% to 12.5% per point.",
-      "Omnislash - Emperor´s Orders: Buffed proc chance from 3% to 4% per point.",
-      "Paladin",
+      "Omnislash - Emperor´s Orders: Buffed proc chance from 3% to 4% per point."
+      ]
+    },
+      {
+      "title": "Paladin",
+      "entries": [
       "Vengeance - Higher Frequency: Buffed attack speed scaling from 6% to 8% per point.",
       "Vengeance - Amped Amps: Buffed lightning damage scaling from 10% to 15% per point.",
       "Vengeance - Power Surge: Buffed attack damage scaling from 10% to 15% per point.",
