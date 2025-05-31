@@ -1,0 +1,25 @@
+# Ignorer le script de traduction
+trad.py
+
+# Fichiers de configuration potentiellement sensibles
+.env
+*.env
+
+# Clés API locales
+openai_key.txt
+
+# Fichiers temporaires, logs ou backup
+*.log
+*.bak
+*.tmp
+
+# Cache d'éditeur
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.py[cod]
