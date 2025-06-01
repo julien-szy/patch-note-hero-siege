@@ -2,35 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hero Siege - Season 7 Patch Notes</title>
+  <title>Hero Siege - Patch Notes</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #1b1b1b;
       color: #e0e0e0;
       padding: 2rem;
+      position: relative;
     }
-    .toc {
+
+    .title {
+      font-size: 48px;
+      font-weight: bold;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #ffffff;
+      z-index: 100;
+    }
+
+    .controls {
+      margin-top: 100px;
+      margin-bottom: 1rem;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 2rem;
+      align-items: center;
+      gap: 1rem;
     }
-    .toc a {
-      text-decoration: none;
+
+    .controls select {
+      padding: 0.5rem 1rem;
+      font-weight: bold;
       background: #333;
       color: white;
-      padding: 0.5rem 1rem;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .controls select:hover {
+      background-color: #555;
+    }
+
+    .toc-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 12px; /* vertical, horizontal */
+      margin-bottom: 1.5rem;
+      margin-left: 0;
+      padding: 0.5rem 0;
+    }
+
+    .toc-buttons button {
+      padding: 0.8rem;
+      background-color: #2c2c2c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 0 1rem 0.5rem 0 ;
+      cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s;
+      white-space: nowrap;
+      transition: background 0.15s ease;
     }
-    .toc a:hover {
-      background: #555;
+
+    .toc-buttons button:hover {
+      background-color: #3a3a3a;
     }
+    
     .section {
       margin-bottom: 2rem;
     }
+
     .section h2 {
       cursor: pointer;
       padding: 0.5rem;
@@ -40,36 +86,29 @@
       display: flex;
       align-items: center;
     }
+
     .section h2 .arrow {
       margin-right: 0.5rem;
       transition: transform 0.2s ease;
     }
+
     .entries {
       padding: 1rem;
       background-color: #252525;
       display: none;
     }
+
     .entry {
       padding-left: 1.5rem;
       position: relative;
       margin-bottom: 0.25rem;
     }
-    .entry.up::before {
-      content: '↑';
-      color: #00ff00;
-    }
-    .entry.down::before {
-      content: '↓';
-      color: #ff4444;
-    }
-    .entry.added::before {
-      content: '+';
-      color: #4da6ff;
-    }
-    .entry::before {
-      content: '⚡';
-      color: orange;
-    }
+
+    .entry.up::before { content: '↑'; color: #00ff00; }
+    .entry.down::before { content: '↓'; color: #ff4444; }
+    .entry.added::before { content: '+'; color: #4da6ff; }
+    .entry::before { content: '⚡'; color: orange; }
+
     .entry.up::before,
     .entry.down::before,
     .entry.added::before,
@@ -79,6 +118,7 @@
       width: 1.5rem;
       text-align: center;
     }
+
     #back-to-top {
       position: fixed;
       bottom: 20px;
@@ -94,9 +134,11 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       transition: background 0.3s;
     }
+
     #back-to-top:hover {
       background: #666;
     }
+
     #countdown {
       position: fixed;
       top: 20px;
@@ -109,13 +151,27 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       z-index: 1000;
     }
+
+    #coming-soon {
+      font-size: 64px;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+      margin-top: 200px;
+    }
   </style>
 </head>
 <body>
-  <h1>Hero Siege - Season 7 Patch Notes</h1>
+  <div class="title">HERO SIEGE PATCH NOTES</div>
+
+  <div class="controls">
+    <select id="version-select" onchange="loadPatch()"></select>
+  </div>
+
   <div id="countdown">Loading countdown...</div>
-  <div class="toc" id="toc"></div>
+  <div class="toc-buttons" id="table-of-contents"></div>
   <div id="patch-notes"></div>
+  <div id="coming-soon" style="display: none;">Coming soon</div>
   <div id="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</div>
 
   <script>
@@ -142,70 +198,133 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    fetch('patch-notes.json')
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById('patch-notes');
-        const toc = document.getElementById('toc');
+    let availableVersions = [];
 
-        data.forEach((section, index) => {
-          const sectionId = `section-${index}`;
-
-          const sectionDiv = document.createElement('div');
-          sectionDiv.className = 'section';
-          sectionDiv.id = sectionId;
-
-          const link = document.createElement('a');
-          link.href = `#${sectionId}`;
-          link.textContent = section.title;
-          toc.appendChild(link);
-
-          const header = document.createElement('h2');
-          const arrow = document.createElement('span');
-          arrow.className = 'arrow';
-          arrow.textContent = '▶';
-          header.appendChild(arrow);
-          header.appendChild(document.createTextNode(section.title));
-
-          const content = document.createElement('div');
-          content.className = 'entries';
-
-          section.entries.forEach(text => {
-            const entry = document.createElement('div');
-            entry.className = 'entry';
-
-            const loweredButGood = /lower(ed)? cooldown|lower(ed)? cast time/i;
-            const betterBreak = /elemental break.*instead of.*fire break/i;
-            const isBuff = /\bbuff(ed)?|increase(d)?|can now|improved|upgrade(d)?|more effective|new effect/i.test(text)
-              || loweredButGood.test(text)
-              || betterBreak.test(text);
-            const isNerf = /^(.*:)?\s*nerf(ed)?\b|reduce(d)?(?!.*elemental)|decrease(d)?(?!.*elemental)/i.test(text)
-              && !loweredButGood.test(text)
-              && !betterBreak.test(text);
-            const isAdd = /\badd(ed)?|adds?|new(?! scaling| value)/i.test(text);
-
-            if (isAdd) entry.classList.add('added');
-            else if (isBuff) entry.classList.add('up');
-            else if (isNerf) entry.classList.add('down');
-
-            entry.textContent = text;
-            content.appendChild(entry);
+    function loadVersions() {
+      fetch('patch-index.json')
+        .then(response => response.json())
+        .then(data => {
+          availableVersions = data.versions;
+          const select = document.getElementById('version-select');
+          select.innerHTML = '';
+          availableVersions.forEach(v => {
+            const option = document.createElement('option');
+            option.value = v;
+            const [season, version] = v.replace('patch-notes-s', '').split('-');
+            option.textContent = `Saison ${season} - Version ${version}`;
+            select.appendChild(option);
           });
-
-          header.onclick = () => {
-            const isHidden = content.style.display === 'none' || content.style.display === '';
-            content.style.display = isHidden ? 'block' : 'none';
-            arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
-          };
-
-          sectionDiv.appendChild(header);
-          sectionDiv.appendChild(content);
-          container.appendChild(sectionDiv);
+          loadPatch();
         });
-      })
-      .catch(err => {
-        document.getElementById('patch-notes').innerText = 'Failed to load patch notes: ' + err;
-      });
+    }
+
+    function loadPatch() {
+      const version = document.getElementById('version-select').value;
+      const filename = `${version}.json`;
+
+      const container = document.getElementById('patch-notes');
+      const comingSoonMessage = document.getElementById('coming-soon');
+      const toc = document.getElementById('table-of-contents');
+
+      container.innerHTML = '';
+      comingSoonMessage.style.display = 'none';
+      toc.style.display = 'block';
+
+      fetch(filename)
+        .then(response => response.text())
+        .then(data => {
+          if (!data.trim()) {
+            comingSoonMessage.style.display = 'block';
+            toc.style.display = 'none';
+            return;
+          }
+
+          try {
+            const jsonData = JSON.parse(data);
+            if (!jsonData || (Array.isArray(jsonData) && jsonData.length === 0)) {
+              comingSoonMessage.style.display = 'block';
+              toc.style.display = 'none';
+              return;
+            }
+
+            toc.innerHTML = '';
+
+            const patchData = Array.isArray(jsonData) ? jsonData : [jsonData];
+
+            patchData.forEach((section, index) => {
+              const sectionId = `section-${index}`;
+
+              const button = document.createElement('button');
+              button.textContent = section.title;
+              button.onclick = () => {
+                document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+                const entryBlock = document.querySelector(`#${sectionId} .entries`);
+                if (entryBlock) entryBlock.style.display = 'block';
+                const arrow = document.querySelector(`#${sectionId} .arrow`);
+                if (arrow) arrow.style.transform = 'rotate(90deg)';
+              };
+              toc.appendChild(button);
+
+              const sectionDiv = document.createElement('div');
+              sectionDiv.className = 'section';
+              sectionDiv.id = sectionId;
+
+              const header = document.createElement('h2');
+              const arrow = document.createElement('span');
+              arrow.className = 'arrow';
+              arrow.textContent = '▶';
+              header.appendChild(arrow);
+              header.appendChild(document.createTextNode(section.title));
+
+              const content = document.createElement('div');
+              content.className = 'entries';
+
+              section.entries.forEach(text => {
+                const entry = document.createElement('div');
+                entry.className = 'entry';
+
+                const loweredButGood = /lower(ed)? cooldown|lower(ed)? cast time/i;
+                const betterBreak = /elemental break.*instead of.*fire break/i;
+                const isBuff = /\bbuff(ed)?|increase(d)?|can now|improved|upgrade(d)?|more effective|new effect/i.test(text)
+                  || loweredButGood.test(text)
+                  || betterBreak.test(text);
+                const isNerf = /^(.*:)?\s*nerf(ed)?\b|reduce(d)?(?!.*elemental)|decrease(d)?(?!.*elemental)/i.test(text)
+                  && !loweredButGood.test(text)
+                  && !betterBreak.test(text);
+                const isAdd = /\badd(ed)?|adds?|new(?! scaling| value)/i.test(text);
+
+                if (isAdd) entry.classList.add('added');
+                else if (isBuff) entry.classList.add('up');
+                else if (isNerf) entry.classList.add('down');
+
+                entry.textContent = text;
+                content.appendChild(entry);
+              });
+
+              header.onclick = () => {
+                const isHidden = content.style.display === 'none' || content.style.display === '';
+                content.style.display = isHidden ? 'block' : 'none';
+                arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+              };
+
+              sectionDiv.appendChild(header);
+              sectionDiv.appendChild(content);
+              container.appendChild(sectionDiv);
+            });
+          } catch (err) {
+            comingSoonMessage.style.display = 'block';
+            toc.style.display = 'none';
+            console.error('Failed to parse JSON:', err);
+          }
+        })
+        .catch(err => {
+          comingSoonMessage.style.display = 'block';
+          toc.style.display = 'none';
+          console.error('Failed to load patch notes:', err);
+        });
+    }
+
+    loadVersions();
   </script>
 </body>
 </html>
