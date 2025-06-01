@@ -211,7 +211,7 @@
             const option = document.createElement('option');
             option.value = v;
             const [season, version] = v.replace('patch-notes-s', '').split('-');
-            option.textContent = `Saison ${season} - Version ${version}`;
+            option.textContent = `Saison ${season} - Patch ${version}`;
             select.appendChild(option);
           });
           loadPatch();
